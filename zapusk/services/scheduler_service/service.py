@@ -9,7 +9,6 @@ from zapusk.services.executor_manager import ExecutorManagerService
 
 
 logger = logging.getLogger(__name__)
-config_service = ConfigService()
 
 
 class SchedulerService:
@@ -22,7 +21,7 @@ class SchedulerService:
         interval: float = 1,
     ) -> None:
         self.__interval = interval
-        self.__config_service = config_service
+        self.__config_service = config_service if config_service else ConfigService()
         self.__executor_manager_service = executor_manager_service
         self.__scheduled_jobs = [j for j in config_service.list_jobs() if j.schedule]
         logger.info(f"Scheduled jobs detected {[i.id for i in self.__scheduled_jobs]}")

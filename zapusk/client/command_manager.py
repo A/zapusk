@@ -15,13 +15,13 @@ from .output import Output
 class CommandManager:
     def __init__(
         self,
-        config_service=ConfigService(),
+        config_service=None,
         output=Output(),
         colors=None,
         api_client: Optional[ApiClient] = None,
     ) -> None:
         self.output = output
-        self.config_service = config_service
+        self.config_service = config_service if config_service else ConfigService()
         config = self.config_service.get_config()
 
         self.api_client = (
