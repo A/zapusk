@@ -5,20 +5,20 @@ from zapusk.client.command_manager import CommandManager
 from zapusk.models.job import JOB_STATE_ENUM
 
 
-doc = """zapusk-client
+doc = """zapusk
 
 
 Usage:
-  zapusk-client -h | --help
-  zapusk-client --version
-  zapusk-client run <job_config_id> [--colors|--no-colors] [--tail]
-  zapusk-client exec <command> [--name=<name>] [--group=<group>] [--tail] [--schedule=<cron_expression>] [--colors|--no-colors]
-  zapusk-client cancel <job_id> [--scheduled] [--colors|--no-colors]
-  zapusk-client tail <job_id>
-  zapusk-client list [--filter=<state>|--scheduled] [--colors|--no-colors]
-  zapusk-client config_jobs [--colors|--no-colors]
-  zapusk-client config_groups [--colors|--no-colors]
-  zapusk-client waybar
+  zapusk -h | --help
+  zapusk --version
+  zapusk run <job_config_id> [--colors|--no-colors] [--tail]
+  zapusk exec <command> [--name=<name>] [--group=<group>] [--tail] [--schedule=<cron_expression>] [--colors|--no-colors]
+  zapusk cancel <job_id> [--scheduled] [--colors|--no-colors]
+  zapusk tail <job_id>
+  zapusk list [--filter=<state>|--scheduled] [--colors|--no-colors]
+  zapusk config_jobs [--colors|--no-colors]
+  zapusk config_groups [--colors|--no-colors]
+  zapusk waybar
 
 
 Options:
@@ -32,8 +32,24 @@ Options:
   -t --tail                     Tail logfile immediately
 
 Examples:
-    zapusk run upload_to_s3
-    zapusk status
+
+    # Execute npm i in background
+    zapusk exec "npm i"
+
+    # Execute pytest and tail its log
+    zapusk exec "pytest -v" -t
+
+    # Schedule command to run every minute
+    zapusk exec "pung -c4 google.com" --schedule "*/1 * * * *"
+
+    # Run some job defined in ~/.config/zapusk/config.yaml
+    zapusk run youtube_dl
+
+    # Cancel some job with id
+    zapusk cancel 42
+
+    # See logs with id of a job
+    zapusk tail 42
 """
 
 version = importlib.metadata.version("zapusk")
