@@ -35,7 +35,7 @@ jobs:
         run: poetry run pytest --cache-clear --cov=zapusk | tee pytest-coverage.txt
 
       - name: Pytest coverage comment
-        if: matrix.python-version == '3.11'
+        if: matrix.python-version == '3.12'
         uses: MishaKav/pytest-coverage-comment@main
         with:
           pytest-coverage-path: ./pytest-coverage.txt
