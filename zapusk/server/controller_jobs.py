@@ -1,3 +1,4 @@
+import os
 from flask import Blueprint, Response, abort, request
 from zapusk.lib.json_serdes import JsonSerdes
 from zapusk.models import Job, JobConfig, IdField
@@ -27,6 +28,7 @@ def create_jobs_api(config_service, executor_manager_service):
         body = request.json or {}
 
         job_config_id = body.get("job_config_id", None)
+        cwd = body.get("cwd", os.environ["HOME"])
 
         # if no config id, let's try to execute it as a command
         if not job_config_id:
@@ -59,6 +61,7 @@ def create_jobs_api(config_service, executor_manager_service):
                     id=cmd_id,
                     name=name or f"{job_group.id}.{cmd_id}",
                     command=command,
+                    cwd=cwd,
                 ),
             )
             executor_manager_service.add(job_item)

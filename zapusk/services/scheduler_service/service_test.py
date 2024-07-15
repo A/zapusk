@@ -24,6 +24,8 @@ class MockExecutorManager:
 
 
 class TestSchedulerService(TestCase):
+    maxDiff = None
+
     def setUp(self) -> None:
         self.temp_dir = TempDirectory()
         self.config_file = self.temp_dir / "config.yml"
@@ -38,6 +40,7 @@ class TestSchedulerService(TestCase):
         self.r = Replacer()
         self.r.replace("zapusk.services.scheduler_service.service.datetime", self.d)
         self.r.replace("zapusk.models.scheduled_job.datetime", self.d)
+        self.r.in_environ("HOME", self.temp_dir.path)
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
@@ -111,6 +114,7 @@ class TestSchedulerService(TestCase):
                     "id": "1",
                     "name": "1",
                     "command": "echo 1",
+                    "cwd": self.temp_dir.path,
                     "group": "default",
                     "args_command": None,
                     "on_finish": None,
@@ -121,6 +125,7 @@ class TestSchedulerService(TestCase):
                     "id": "2",
                     "name": "2",
                     "command": "echo 2",
+                    "cwd": self.temp_dir.path,
                     "group": "default",
                     "args_command": None,
                     "on_finish": None,
@@ -163,6 +168,7 @@ class TestSchedulerService(TestCase):
                     "id": "2",
                     "name": "2",
                     "command": "echo 2",
+                    "cwd": self.temp_dir.path,
                     "group": "default",
                     "args_command": None,
                     "on_finish": None,
@@ -207,6 +213,7 @@ class TestSchedulerService(TestCase):
                     "id": "1",
                     "name": "1",
                     "command": "echo 1",
+                    "cwd": self.temp_dir.path,
                     "group": "default",
                     "args_command": None,
                     "on_finish": None,
@@ -217,6 +224,7 @@ class TestSchedulerService(TestCase):
                     "id": "2",
                     "name": "2",
                     "command": "echo 2",
+                    "cwd": self.temp_dir.path,
                     "group": "default",
                     "args_command": None,
                     "on_finish": None,

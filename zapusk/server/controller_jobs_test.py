@@ -4,6 +4,7 @@ from unittest.mock import ANY
 
 from testfixtures import TempDirectory
 
+from zapusk.server.controller_testcase import ControllerTestCase
 from zapusk.services import (
     ConfigService,
     SchedulerService,
@@ -27,37 +28,12 @@ jobs:
 """
 
 
-class TestJobController(TestCase):
-    def setUp(self) -> None:
-        self.temp_dir = TempDirectory()
-        self.config_file = self.temp_dir / "config.yml"
-        self.config_file.write_text(CONFIG_DATA)
+class TestJobController(ControllerTestCase):
+    def before_create_services(self):
+        self.write_config(CONFIG_DATA)
+        self.replace_in_environ("HOME", self.temp_dir.path)
 
-        self.executor_manager_service = ExecutorManagerService(
-            backend=ExecutorManagerKawkaBackend(),
-        )
-        self.config_service = ConfigService(
-            config_path=f"{self.temp_dir.path}/config.yml"
-        )
-        self.scheduler_service = SchedulerService(
-            config_service=self.config_service,
-            executor_manager_service=self.executor_manager_service,
-        )
-        self.scheduler_service.start()
-
-        self.app = create_app(
-            executor_manager_service=self.executor_manager_service,
-            config_service=self.config_service,
-            scheduler_service=self.scheduler_service,
-        )
-        self.test_client = self.app.test_client()
-
-    def tearDown(self) -> None:
-        self.executor_manager_service.terminate()
-        self.scheduler_service.terminate()
-        self.temp_dir.cleanup()
-
-    def test_create_job(self):
+    def test_controller_jobs_create_job(self):
         res = self.test_client.post("/jobs/", json={"job_config_id": "echo"})
         data = json.loads(res.data)
 
@@ -68,6 +44,7 @@ class TestJobController(TestCase):
                     "args": [],
                     "args_command": None,
                     "command": "echo 1",
+                    "cwd": self.temp_dir.path,
                     "consumed_by": None,
                     "created_at": ANY,
                     "exit_code": None,
@@ -91,7 +68,7 @@ class TestJobController(TestCase):
             },
         )
 
-    def test_create_command(self):
+    def test_controller_jobs_create_command(self):
         res = self.test_client.post(
             "/jobs/",
             json={
@@ -109,6 +86,7 @@ class TestJobController(TestCase):
                     "args": [],
                     "args_command": None,
                     "command": "echo 42",
+                    "cwd": self.temp_dir.path,
                     "consumed_by": None,
                     "created_at": ANY,
                     "exit_code": None,
@@ -132,7 +110,7 @@ class TestJobController(TestCase):
             },
         )
 
-    def test_get_job(self):
+    def test_controller_jobs_get_job(self):
         res = self.test_client.post("/jobs/", json={"job_config_id": "echo"})
         data = json.loads(res.data)
 
@@ -147,6 +125,7 @@ class TestJobController(TestCase):
                     "args": [],
                     "args_command": None,
                     "command": "echo 1",
+                    "cwd": self.temp_dir.path,
                     "consumed_by": None,
                     "created_at": ANY,
                     "exit_code": None,
@@ -170,7 +149,7 @@ class TestJobController(TestCase):
             },
         )
 
-    def test_list_job(self):
+    def test_controller_jobs_list_job(self):
         res = self.test_client.post("/jobs/", json={"job_config_id": "echo"})
         data = json.loads(res.data)
 
@@ -186,6 +165,7 @@ class TestJobController(TestCase):
                         "args": [],
                         "args_command": None,
                         "command": "echo 1",
+                        "cwd": self.temp_dir.path,
                         "consumed_by": None,
                         "created_at": ANY,
                         "exit_code": None,
@@ -210,7 +190,7 @@ class TestJobController(TestCase):
             },
         )
 
-    def test_cancel_job(self):
+    def test_controller_jobs_cancel_job(self):
         res = self.test_client.post(
             "/jobs/", json={"command": "sleep 60", "name": "test_command"}
         )
@@ -227,6 +207,7 @@ class TestJobController(TestCase):
                     "args": [],
                     "args_command": None,
                     "command": "sleep 60",
+                    "cwd": self.temp_dir.path,
                     "consumed_by": ANY,
                     "created_at": ANY,
                     "exit_code": None,
@@ -250,7 +231,7 @@ class TestJobController(TestCase):
             },
         )
 
-    def test_get_unknown(self):
+    def test_controller_jobs_get_unknown(self):
         res = self.test_client.get(f"/jobs/420")
         data = json.loads(res.data)
 
@@ -266,7 +247,7 @@ class TestJobController(TestCase):
             data, {"error": "Request body contains no `command` or `job_config_id`"}
         )
 
-    def test_create_with_unknown_jobgroup(self):
+    def test_controller_jobs_create_with_unknown_jobgroup(self):
         res = self.test_client.post(
             f"/jobs/",
             json={
@@ -279,7 +260,7 @@ class TestJobController(TestCase):
         self.assertEqual(res.status, "404 NOT FOUND")
         self.assertEqual(data, {"error": 'group_id "unknown" not found'})
 
-    def test_create_with_unknown_jobconfig_id(self):
+    def test_controller_jobs_create_with_unknown_jobconfig_id(self):
         res = self.test_client.post(
             f"/jobs/",
             json={
@@ -291,7 +272,7 @@ class TestJobController(TestCase):
         self.assertEqual(res.status, "404 NOT FOUND")
         self.assertEqual(data, {"error": "Job with id `unknown` not found"})
 
-    def test_cancel_unknown_job(self):
+    def test_controller_jobs_cancel_unknown_job(self):
         res = self.test_client.delete("/jobs/420")
         data = json.loads(res.data)
 

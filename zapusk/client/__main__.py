@@ -1,3 +1,4 @@
+import os
 from type_docopt import docopt
 import importlib.metadata
 
@@ -95,6 +96,7 @@ def main():
             name=str(args["--name"]) if args["--name"] else None,
             schedule=str(args["--schedule"]) if args["--schedule"] else None,
             tail=bool(args["--tail"]),
+            cwd=os.getcwd(),
         )
         return
 

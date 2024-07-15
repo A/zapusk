@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class ConfigService:
-    config_path: str
+    config_path: str | None
 
     def __init__(
         self,
@@ -29,7 +29,9 @@ class ConfigService:
         Returns a path to the config file considering evnironment configuration
         """
         if config_path:
-            return os.path.expanduser(config_path)
+            if isfile(config_path):
+                return os.path.expanduser(config_path)
+            return None
 
         config_dir = os.path.join(
             os.environ.get("APPDATA")
@@ -50,10 +52,13 @@ class ConfigService:
             logger.debug(f"Loaded config file: {config_dir}/config.yml")
             return f"{config_dir}/config.yml"
         else:
-            raise FileExistsError("Config not found")
+            return None
 
     def get_config(self):
-        config = self.file_reader.read(self.config_path)
+        if self.config_path:
+            config = self.file_reader.read(self.config_path)
+        else:
+            config = {}
         return self.parser.parse(config)
 
     def list_jobs(self):

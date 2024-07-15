@@ -27,6 +27,7 @@ class JobCreateFromConfigPayload(TypedDict):
 
 class JobCreateFromCommandPayload(TypedDict):
     command: str
+    cwd: str
     name: NotRequired[Optional[str]]
     group_id: NotRequired[Optional[str]]
 

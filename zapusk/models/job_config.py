@@ -1,4 +1,5 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+import os
 from typing import Optional
 
 from .base_model import BaseModel
@@ -19,6 +20,11 @@ class JobConfig(BaseModel):
     command: str
     """
     shell command for the job
+    """
+
+    cwd: str = field(default_factory=lambda: os.environ["HOME"])
+    """
+    current working dir
     """
 
     group: str = "default"

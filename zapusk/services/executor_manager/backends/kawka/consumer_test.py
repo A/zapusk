@@ -1,3 +1,4 @@
+import os
 from time import sleep
 from unittest import TestCase, mock
 from testfixtures.mock import call
@@ -16,7 +17,11 @@ class ExecutorManagerTest(TestCase):
         self.Popen = MockPopen()
         self.r = Replacer()
         self.r.replace("subprocess.Popen", self.Popen)
+        self.r.in_environ("HOME", "/home/")
         self.addCleanup(self.r.restore)
+
+    def tearDown(self) -> None:
+        self.r.restore()
 
     def test_should_get_args_and_run_job(self):
         input_producer = Producer(name="input_producer")
@@ -45,6 +50,8 @@ class ExecutorManagerTest(TestCase):
             call.Popen(
                 "get_args",
                 shell=True,
+                env={**os.environ},
+                cwd="/home/",
                 stdout=-1,
                 stderr=-1,
             ),
@@ -54,6 +61,8 @@ class ExecutorManagerTest(TestCase):
             call.Popen(
                 "my_command hello world",
                 shell=True,
+                env={**os.environ},
+                cwd="/home/",
                 stdout=mock.ANY,
                 stderr=mock.ANY,
             ),

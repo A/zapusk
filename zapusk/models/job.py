@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+import os
 from typing import Optional
 
 from .id_field import IdField
@@ -64,6 +65,7 @@ class Job:
             name=config.name,
             on_finish=config.on_finish,
             on_fail=config.on_fail,
+            cwd=config.cwd,
         )
 
     group_config: JobGroup
@@ -84,6 +86,11 @@ class Job:
     group: str = "default"
     """
     job_group id
+    """
+
+    cwd: str = field(default_factory=lambda: os.environ["HOME"])
+    """
+    current working dir
     """
 
     job_config_id: Optional[str] = None

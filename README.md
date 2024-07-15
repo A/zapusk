@@ -1,9 +1,20 @@
 # Zapusk
 
-![Zapusk ScreenShot](.imgs/zapusk.png)
+![Zapusk Screenshot](.imgs/zapusk.png)
 
-Zapusk is a job runner for desktop environments. It helps you manage background tasks with features like pre-configured job execution, background shell commands, scheduling with cron-like syntax, log tailing, and notifications. It also provides detailed JSON output for easy data manipulation and analysis.
+Zapusk is a versatile job runner designed for desktop environments. It simplifies the process of managing background tasks by providing robust features such as pre-configured job execution, background shell command execution, cron-like scheduling, log tailing, and notifications. Zapusk's detailed JSON output also enables powerful data manipulation and analysis when paired with tools like jq.
 
+## Table of Contents
+
+- [Key Features](#key-features)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Basic Commands](#basic-commands)
+  - [Advanced Usage](#advanced-usage)
+- [Configuration](#configuration)
+- [Examples](#examples)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Key Features
 
@@ -15,6 +26,7 @@ Zapusk is a job runner for desktop environments. It helps you manage background 
 - **Job Groups:** Share settings like callbacks and parallelism between jobs.
 - **Colored JSON Output:** Easily readable JSON output.
 - **Waybar Integration:** Display job statuses and notifications on Waybar.
+- **Custom Working Directory:** Run scripts and callbacks in a specified working directory.
 
 ## Installation
 
@@ -26,8 +38,9 @@ pip install zapusk
 
 ## Usage
 
-Zapusk requires `zapusk-server` to be started. Zapusk offers a command-line interface for managing and executing jobs.
-Here's a quick reference:
+Zapusk requires `zapusk-server` to be started. Zapusk offers a command-line interface for managing and executing jobs. Here's a quick reference:
+
+### Basic Commands
 
 ```sh
 Usage:
@@ -51,34 +64,36 @@ Options:
   -n --name=<name>              Name for a command.
   -g --group=<group>            Job group to run the command in.
   -t --tail                     Tail logfile immediately.
-
-Examples:
-
-    # Run npm install in the background
-    zapusk exec "npm i"
-
-    # Run pytest and tail its log
-    zapusk exec "pytest -v" -t
-
-    # Schedule a command to run every minute
-    zapusk exec "ping -c4 google.com" --schedule "*/1 * * * *"
-
-    # Run a job defined in ~/.config/zapusk/config.yaml
-    zapusk run youtube_dl
-
-    # Cancel a job by its ID
-    zapusk cancel 42
-
-    # See logs for a job by its ID
-    zapusk tail 42
 ```
 
-## Example Configuration
+### Examples
 
-Here is an example configuration file for Zapusk. It defines job groups and individual jobs, specifying commands, schedules, and notifications.
+```sh
+# Run npm install in the background
+zapusk exec "npm i"
+
+# Run pytest and tail its log
+zapusk exec "pytest -v" -t
+
+# Schedule a command to run every minute
+zapusk exec "ping -c4 google.com" --schedule "*/1 * * * *"
+
+# Run a job defined in ~/.config/zapusk/config.yaml
+zapusk run youtube_dl
+
+# Cancel a job by its ID
+zapusk cancel 42
+
+# See logs for a job by its ID
+zapusk tail 42
+```
+
+## Configuration
+
+Here is an example configuration file for Zapusk. It defines job groups and individual jobs, specifying commands, schedules, notifications, and working directories.
 
 ```yaml
-# Port server starts on and client call to
+# The port the server starts on and the client connects to
 port: 9876
 
 # Enable colored JSON output
@@ -103,6 +118,7 @@ jobs:
     id: unsplash
     args_command: "zenity --entry --text 'Collection ID'"
     command: ~/.bin/jobs/unsplash_dl.sh
+    cwd: /path/to/working/directory
 
   - name: Sleep
     id: sleep
@@ -132,6 +148,7 @@ jobs:
     id: unsplash
     args_command: "zenity --entry --text 'Collection ID'"
     command: ~/.bin/jobs/unsplash_wallpaper_collection_download.sh
+    cwd: /path/to/working/directory
     on_finish: notify-send -a "Zapusk" "Wallpapers downloaded" --icon kitty
     on_fail: notify-send -a "Zapusk" "Wallpaper download failed" --icon kitty
 ```
@@ -210,11 +227,12 @@ jobs:
     id: sleep
     group: sleep
     command: ~/.bin/jobs/sleep
+    cwd: /path/to/working/directory
     on_finish: notify-send -a "zapusk" "Job Finished" "{job.name} has finished" --icon kitty
     on_fail: notify-send -a "zapusk" "Job Failed" "{job.name} has failed" --icon kitty
 ```
 
-### Waybar Integration
+## Waybar Integration
 
 Zapusk integrates with Waybar to display job statuses and notifications directly on your desktop.
 
@@ -230,10 +248,7 @@ Zapusk integrates with Waybar to display job statuses and notifications directly
 }
 ```
 
-## Contribution
-
-We welcome contributions! If you find a bug or have an idea for improvement, please open an issue or submit a pull request on our GitHub repository.
 
 ## License
 
-Zapusk is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+Zapusk is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for more information.

@@ -25,5 +25,5 @@ class CommandList(Command):
             self.print_json(jobs)
             return
 
-        except ApiClientError as ex:
-            self.print_error(ex)
+        except Exception as ex:
+            self.handle_error(ex)

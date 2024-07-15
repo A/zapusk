@@ -1,4 +1,5 @@
 import pytest
+from testfixtures import Replacer
 import yaml
 
 from zapusk.services.config.constants import DEFAULT_COLORS
@@ -36,6 +37,7 @@ jobs:
                         "name": "Sleep Timer",
                         "id": "sleep",
                         "command": "sleep 10",
+                        "cwd": "/home/",
                         "group": "default",
                         "args_command": None,
                     }
@@ -70,6 +72,7 @@ jobs:
                         "name": "Sleep Timer",
                         "id": "sleep",
                         "command": "sleep 10",
+                        "cwd": "/home/",
                         "group": "awesome_group",
                         "args_command": None,
                     }
@@ -122,6 +125,7 @@ jobs:
                         "name": "Sleep Timer",
                         "id": "sleep",
                         "command": "sleep 10",
+                        "cwd": "/home/",
                         "group": "default",
                         "args_command": None,
                         "on_fail": "echo job_fail",
@@ -156,6 +160,7 @@ jobs:
                         "name": "Sleep Timer",
                         "id": "sleep",
                         "command": "sleep 10",
+                        "cwd": "/home/",
                         "group": "default",
                         "args_command": None,
                     }
@@ -173,11 +178,15 @@ jobs:
     ],
 )
 def test_config_parser_should_parse_config(config_yaml, expected_result):
+    replace = Replacer()
+    replace.in_environ("HOME", "/home/")
+
     config_parser = ConfigParser()
     config_data = yaml.safe_load(config_yaml)
     res = config_parser.parse(config_data)
 
     assert res == expected_result
+    replace.restore()
 
 
 ####################################
