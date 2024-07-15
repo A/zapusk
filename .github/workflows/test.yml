@@ -32,7 +32,7 @@ jobs:
         run: poetry install
 
       - name: test
-        run: poetry run pytest --cache-clear --cov=src > pytest-coverage.txt
+        run: poetry run pytest --cache-clear --cov=zapusk > pytest-coverage.txt
 
       - name: Pytest coverage comment
         if: matrix.python-version == '3.11'
