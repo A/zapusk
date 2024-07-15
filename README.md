@@ -26,7 +26,8 @@ pip install zapusk
 
 ## Usage
 
-Zapusk offers a command-line interface for managing and executing jobs. Here's a quick reference:
+Zapusk requires `zapusk-server` to be started. Zapusk offers a command-line interface for managing and executing jobs.
+Here's a quick reference:
 
 ```sh
 Usage:
