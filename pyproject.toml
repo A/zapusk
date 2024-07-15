@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "zapusk"
+version = "0.1.0"
+description = ""
+authors = ["Anton Shuvalov <anton@shuvalov.info>"]
+readme = "README.md"
+
+[tool.poetry.scripts]
+zapusk-server = "zapusk.__main__:main"
+zapusk = "zapusk.client.__main__:main"
+
+[tool.pytest.ini_options]
+pythonpath = "."
+
+[tool.poetry.dependencies]
+python = "^3.12"
+docopt = "^0.6.2"
+pyyaml = "^6.0.1"
+flask = "^3.0.3"
+requests = "^2.32.3"
+pygments = "^2.18.0"
+type-docopt = "^0.8.2"
+python-dateutil = "^2.9.0.post0"
+pdoc = "^14.5.1"
+human-readable = "^1.3.4"
+sh = "^2.0.7"
+croniter = "^2.0.5"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+black = "^24.4.2"
+pytest-timeout = "^2.3.1"
+testfixtures = "^8.3.0"
+responses = "^0.25.3"
+
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

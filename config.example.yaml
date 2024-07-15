@@ -1,0 +1,27 @@
+# Example configuration for 
+port: 9876
+
+job_groups:
+  - id: default
+    parallel: 10
+  - id: sequential
+    parallel: 1
+  - id: parallel
+    parallel: 2
+
+
+jobs:
+  - name: Sleep 10 Seconds
+    id: sleep_10
+    command: sleep 10
+
+  - name: Sleep 30 Seconds
+    group: parallel
+    id: sleep_30
+    command: sleep 30
+
+  - name: Configurable Sleep
+    id: sleep
+    group: sequential
+    args_command: "zenity --entry --text 'Sleep Time'"
+    command: "sleep $1"
