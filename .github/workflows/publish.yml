@@ -6,7 +6,7 @@ on:
       - "master"
 
 env:
-  PYTHON_VERSION: 3.11.3
+  PYTHON_VERSION: 3.12.4
 
 jobs:
   publish:
