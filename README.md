@@ -4,6 +4,7 @@
 
 Zapusk is a job runner for desktop environments. It helps you manage background tasks with features like pre-configured job execution, background shell commands, scheduling with cron-like syntax, log tailing, and notifications. It also provides detailed JSON output for easy data manipulation and analysis.
 
+
 ## Key Features
 
 - **Preconfigured Jobs:** Run jobs defined in your configuration files.

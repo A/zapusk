@@ -1,0 +1,40 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - '*'
+      - '!master'
+
+env:
+  PYTHON_VERSION: 3.12.4
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.12']
+
+    name: Python ${{ matrix.python-version }} test
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: install poetry
+        run: pip install poetry
+
+      - name: install deps
+        run: poetry install
+
+      - name: test
+        run: poetry run pytest --cache-clear --cov=zapusk | tee pytest-coverage.txt
+
+      - name: Pytest coverage comment
+        if: matrix.python-version == '3.12'
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-coverage-path: ./pytest-coverage.txt
