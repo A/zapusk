@@ -1,6 +1,8 @@
+import os
 import logging
 from datetime import datetime
 import subprocess
+
 
 from zapusk.kawka import Consumer
 from zapusk.models import Job
@@ -24,6 +26,8 @@ class ArgsConsumer(Consumer):
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            env={**os.environ},
+            cwd=job.cwd,
         )
         exit_code = proc.wait()
         out, err = proc.communicate()

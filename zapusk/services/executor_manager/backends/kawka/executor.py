@@ -1,3 +1,4 @@
+import os
 import logging
 import subprocess
 from time import time
@@ -33,6 +34,8 @@ class Executor(Consumer):
                 shell=True,
                 stdout=logfile,
                 stderr=logfile,
+                env={**os.environ},
+                cwd=job.cwd,
             )
             job.pid = proc.pid
 
@@ -53,6 +56,8 @@ class Executor(Consumer):
                 subprocess.Popen(
                     on_finish.format(job=job),
                     shell=True,
+                    env={**os.environ},
+                    cwd=job.cwd,
                 )
 
         else:
@@ -64,6 +69,8 @@ class Executor(Consumer):
                 subprocess.Popen(
                     on_fail.format(job=job),
                     shell=True,
+                    env={**os.environ},
+                    cwd=job.cwd,
                 )
 
             logger.info(f"{self.name} failed {job} job")

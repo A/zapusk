@@ -1,17 +1,7 @@
 import json
-from unittest import TestCase
 from unittest.mock import ANY, patch
 
-from testfixtures import TempDirectory
-
-from zapusk.services import (
-    ConfigService,
-    SchedulerService,
-    ExecutorManagerService,
-    ExecutorManagerKawkaBackend,
-)
-
-from .api import create_app
+from .controller_testcase import ControllerTestCase
 
 CONFIG_DATA = """
 jobs:
@@ -22,37 +12,12 @@ jobs:
 """
 
 
-class TestJobController(TestCase):
-    def setUp(self) -> None:
-        self.temp_dir = TempDirectory()
-        self.config_file = self.temp_dir / "config.yml"
-        self.config_file.write_text(CONFIG_DATA)
+class TestSchedulerJobController(ControllerTestCase):
+    def before_create_services(self):
+        self.write_config(CONFIG_DATA)
+        self.replace_in_environ("HOME", self.temp_dir.path)
 
-        self.executor_manager_service = ExecutorManagerService(
-            backend=ExecutorManagerKawkaBackend(),
-        )
-        self.config_service = ConfigService(
-            config_path=f"{self.temp_dir.path}/config.yml"
-        )
-        self.scheduler_service = SchedulerService(
-            config_service=self.config_service,
-            executor_manager_service=self.executor_manager_service,
-        )
-        self.scheduler_service.start()
-
-        self.app = create_app(
-            executor_manager_service=self.executor_manager_service,
-            config_service=self.config_service,
-            scheduler_service=self.scheduler_service,
-        )
-        self.test_client = self.app.test_client()
-
-    def tearDown(self) -> None:
-        self.executor_manager_service.terminate()
-        self.scheduler_service.terminate()
-        self.temp_dir.cleanup()
-
-    def test_list(self):
+    def test_controller_scheduled_jobs_list(self):
         res = self.test_client.get("/scheduled-jobs/")
         data = json.loads(res.data)
 
@@ -63,6 +28,7 @@ class TestJobController(TestCase):
                     {
                         "args_command": None,
                         "command": "echo 1",
+                        "cwd": self.temp_dir.path,
                         "group": "default",
                         "id": "scheduled_echo",
                         "name": "Echo",
@@ -74,7 +40,7 @@ class TestJobController(TestCase):
             },
         )
 
-    def test_create(self):
+    def test_controller_scheduled_jobs_create(self):
         res = self.test_client.post(
             "/scheduled-jobs/",
             json={
@@ -90,6 +56,7 @@ class TestJobController(TestCase):
             {
                 "data": {
                     "args_command": None,
+                    "cwd": self.temp_dir.path,
                     "command": "echo 42",
                     "group": "default",
                     "id": "scheduled.1",
@@ -101,7 +68,7 @@ class TestJobController(TestCase):
             },
         )
 
-    def test_cancel(self):
+    def test_controller_scheduled_jobs_cancel(self):
         res = self.test_client.delete(
             "/scheduled-jobs/scheduled_echo",
             json={
@@ -118,7 +85,7 @@ class TestJobController(TestCase):
 
         self.assertEqual(data, {"data": []})
 
-    def test_create_without_command(self):
+    def test_controller_scheduled_jobs_create_without_command(self):
         res = self.test_client.post(
             "/scheduled-jobs/",
             json={
@@ -130,7 +97,7 @@ class TestJobController(TestCase):
         self.assertEqual(res.status, "400 BAD REQUEST")
         self.assertEqual(data, {"error": "Request body contains no `command`"})
 
-    def test_create_without_schedule(self):
+    def test_controller_scheduled_jobs_create_without_schedule(self):
         res = self.test_client.post(
             "/scheduled-jobs/",
             json={
@@ -142,7 +109,7 @@ class TestJobController(TestCase):
         self.assertEqual(res.status, "400 BAD REQUEST")
         self.assertEqual(data, {"error": "Request body contains no `schedule`"})
 
-    def test_create_with_unknown_group(self):
+    def test_controller_scheduled_jobs_create_with_unknown_group(self):
         res = self.test_client.post(
             "/scheduled-jobs/",
             json={
@@ -156,7 +123,7 @@ class TestJobController(TestCase):
         self.assertEqual(res.status, "404 NOT FOUND")
         self.assertEqual(data, {"error": "Unknown group `unknown`"})
 
-    def test_create_failed_by_scheduler_service(self):
+    def test_controller_scheduled_jobs_create_failed_by_scheduler_service(self):
         with patch.object(self.scheduler_service, "add", return_value=False):
             res = self.test_client.post(
                 "/scheduled-jobs/",

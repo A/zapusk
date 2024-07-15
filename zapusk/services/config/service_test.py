@@ -1,10 +1,19 @@
 from unittest import TestCase
 
-from testfixtures import TempDirectory, replace_in_environ
+from testfixtures import Replacer, TempDirectory, replace_in_environ
+
+from zapusk.services.config.constants import DEFAULT_COLORS
 from .service import ConfigService
 
 
 class TestConfigService(TestCase):
+    def setUp(self) -> None:
+        self.r = Replacer()
+        self.r.in_environ("HOME", "/home/")
+
+    def tearDown(self) -> None:
+        self.r.restore()
+
     def test_config_service_should_return_jobs(self):
         config_service = ConfigService(config_path="./config.example.yaml")
         jobs = config_service.list_jobs()
@@ -17,6 +26,7 @@ class TestConfigService(TestCase):
                 "id": "sleep_10",
                 "group": "default",
                 "command": "sleep 10",
+                "cwd": "/var/",
                 "args_command": None,
             },
         )
@@ -28,6 +38,7 @@ class TestConfigService(TestCase):
                 "id": "sleep_30",
                 "group": "parallel",
                 "command": "sleep 30",
+                "cwd": "/home/",
                 "args_command": None,
             },
         )
@@ -39,6 +50,7 @@ class TestConfigService(TestCase):
                 "id": "sleep",
                 "group": "sequential",
                 "command": "sleep $1",
+                "cwd": "/home/",
                 "args_command": "zenity --entry --text 'Sleep Time'",
             },
         )
@@ -121,6 +133,7 @@ class TestConfigService(TestCase):
                 "id": "sleep_10",
                 "group": "default",
                 "command": "sleep 10",
+                "cwd": "/var/",
                 "args_command": None,
             },
         )
@@ -176,3 +189,25 @@ class TestConfigService(TestCase):
                     ConfigService()
                 except FileExistsError as ex:
                     self.assertEqual(ex.args[0], "Config not found")
+
+    def test_config_should_contain_only_defaults_if_config_file_does_not_exist(self):
+        config_service = ConfigService(
+            config_path="/home/leonid_brezhnev/plenum/config.yaml"
+        )
+        config = config_service.get_config()
+
+        self.assertEqual(len(config.job_groups), 1)
+        self.assertEqual(
+            config.job_groups["default"],
+            {
+                "id": "default",
+                "parallel": 10,
+                "on_finish": None,
+                "on_fail": None,
+            },
+        )
+        self.assertEqual(len(config.jobs), 0)
+        self.assertEqual(config.port, 9876)
+        self.assertEqual(config.colors, DEFAULT_COLORS)
+
+        pass

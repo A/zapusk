@@ -1,16 +1,7 @@
-from unittest import TestCase
+import json
 
-from flask import json
-from testfixtures import TempDirectory
+from .controller_testcase import ControllerTestCase
 
-from zapusk.services import (
-    ConfigService,
-    SchedulerService,
-    ExecutorManagerService,
-    ExecutorManagerKawkaBackend,
-)
-
-from .api import create_app
 
 CONFIG_DATA = """
 job_groups:
@@ -25,43 +16,16 @@ jobs:
     - id: test1
       name: Test1
       command: test1
+      cwd: /home/
     - id: test2
       name: Test2
       command: test2
 """
 
 
-class TestConfigController(TestCase):
-    def setUp(self) -> None:
-        self.temp_dir = TempDirectory()
-        config_file = self.temp_dir / "config.yml"
-        config_file.write_text(CONFIG_DATA)
-
-        self.executor_manager_service = ExecutorManagerService(
-            backend=ExecutorManagerKawkaBackend(),
-        )
-        self.config_service = ConfigService(
-            config_path=f"{self.temp_dir.path}/config.yml"
-        )
-        self.scheduler_service = SchedulerService(
-            config_service=self.config_service,
-            executor_manager_service=self.executor_manager_service,
-        )
-        self.scheduler_service.start()
-
-        self.app = create_app(
-            executor_manager_service=self.executor_manager_service,
-            config_service=self.config_service,
-            scheduler_service=self.scheduler_service,
-        )
-        self.test_client = self.app.test_client()
-
-    def tearDown(self) -> None:
-        self.executor_manager_service.terminate()
-        self.scheduler_service.terminate()
-        self.temp_dir.cleanup()
-
+class TestConfigController(ControllerTestCase):
     def test_config_groups_list(self):
+        self.write_config(CONFIG_DATA)
         res = self.test_client.get("/config/groups/")
         data = json.loads(res.data)
         self.assertEqual(
@@ -91,6 +55,8 @@ class TestConfigController(TestCase):
         )
 
     def test_config_jobs_list(self):
+        self.write_config(CONFIG_DATA)
+        self.replace_in_environ("HOME", "/home/kanye")
         res = self.test_client.get("/config/jobs/")
         data = json.loads(res.data)
         self.assertEqual(
@@ -106,6 +72,7 @@ class TestConfigController(TestCase):
                         "on_fail": None,
                         "on_finish": None,
                         "schedule": None,
+                        "cwd": "/home/",
                     },
                     {
                         "args_command": None,
@@ -116,6 +83,7 @@ class TestConfigController(TestCase):
                         "on_fail": None,
                         "on_finish": None,
                         "schedule": None,
+                        "cwd": "/home/kanye",
                     },
                 ]
             },

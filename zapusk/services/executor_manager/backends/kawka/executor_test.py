@@ -1,3 +1,4 @@
+import os
 from unittest import TestCase, mock
 from testfixtures.mock import call
 from testfixtures import Replacer
@@ -15,6 +16,7 @@ class ExecutorTest(TestCase):
         self.Popen = MockPopen()
         self.r = Replacer()
         self.r.replace("subprocess.Popen", self.Popen)
+        self.r.in_environ("HOME", "/home/")
         self.addCleanup(self.r.restore)
 
     def test_consumer_should_run_command(self):
@@ -34,6 +36,8 @@ class ExecutorTest(TestCase):
             call.Popen(
                 "echo 1",
                 shell=True,
+                env={**os.environ},
+                cwd="/home/",
                 stdout=mock.ANY,
                 stderr=mock.ANY,
             ),
@@ -60,6 +64,8 @@ class ExecutorTest(TestCase):
             call.Popen(
                 "echo 1",
                 shell=True,
+                env={**os.environ},
+                cwd="/home/",
                 stdout=mock.ANY,
                 stderr=mock.ANY,
             ),
@@ -69,6 +75,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[2],
             call.Popen(
                 "echo finish",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
             ),
         )
@@ -92,6 +100,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[0],
             call.Popen(
                 "echo 1",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
                 stdout=mock.ANY,
                 stderr=mock.ANY,
@@ -102,6 +112,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[2],
             call.Popen(
                 "echo finish",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
             ),
         )
@@ -132,6 +144,8 @@ class ExecutorTest(TestCase):
             call.Popen(
                 "echo 1",
                 shell=True,
+                env={**os.environ},
+                cwd="/home/",
                 stdout=mock.ANY,
                 stderr=mock.ANY,
             ),
@@ -141,6 +155,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[2],
             call.Popen(
                 "echo finish",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
             ),
         )
@@ -164,6 +180,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[0],
             call.Popen(
                 "exit 1",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
                 stdout=mock.ANY,
                 stderr=mock.ANY,
@@ -174,6 +192,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[2],
             call.Popen(
                 "echo fail",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
             ),
         )
@@ -197,6 +217,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[0],
             call.Popen(
                 "exit 1",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
                 stdout=mock.ANY,
                 stderr=mock.ANY,
@@ -207,6 +229,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[2],
             call.Popen(
                 "echo fail",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
             ),
         )
@@ -234,6 +258,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[0],
             call.Popen(
                 "exit 1",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
                 stdout=mock.ANY,
                 stderr=mock.ANY,
@@ -244,6 +270,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[2],
             call.Popen(
                 "echo fail",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
             ),
         )
@@ -264,6 +292,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[0],
             call.Popen(
                 "echo 1 2 3",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
                 stdout=mock.ANY,
                 stderr=mock.ANY,
@@ -287,6 +317,8 @@ class ExecutorTest(TestCase):
             self.Popen.all_calls[0],
             call.Popen(
                 "exit 1",
+                env={**os.environ},
+                cwd="/home/",
                 shell=True,
                 stdout=mock.ANY,
                 stderr=mock.ANY,

@@ -1,3 +1,4 @@
+import os
 from typing import Optional
 
 from zapusk.client.api_client import ApiClientError
@@ -9,6 +10,7 @@ class CommandExec(Command):
     def run(
         self,
         command: str,
+        cwd: str,
         name: Optional[str] = None,
         group_id: Optional[str] = None,
         schedule: Optional[str] = None,
@@ -23,6 +25,7 @@ class CommandExec(Command):
                         "group_id": group_id,
                         "name": name,
                         "schedule": schedule,
+                        "cwd": cwd,
                     }
                 )
 
@@ -35,6 +38,7 @@ class CommandExec(Command):
                     "command": command,
                     "group_id": group_id,
                     "name": name,
+                    "cwd": cwd,
                 }
             )
 
@@ -44,5 +48,5 @@ class CommandExec(Command):
 
             self.print_json(created_job)
 
-        except ApiClientError as ex:
-            self.print_error(ex)
+        except Exception as ex:
+            self.handle_error(ex)
